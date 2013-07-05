@@ -73,6 +73,7 @@ upgrading from redis-rb 2.x. A full list of changes can be found below.
     * `MSETNX`
     * `ZRANGE`, `ZREVRANGE`, `ZRANGEBYSCORE`, `ZREVRANGEBYSCORE`
     * `ZINCRBY`, `ZSCORE`
+    * `RPUSH`
 
 * The return value from `#pipelined` and `#multi` no longer contains
   unprocessed replies, but the same replies that would be returned if
@@ -164,6 +165,20 @@ upgrading from redis-rb 2.x. A full list of changes can be found below.
 
 * The `ZINCRBY` and `ZSCORE` commands now return a `Float` score instead
   of a string holding a representation of the score.
+
+* The `RPUSH` command no longer automatically converts Array types into JSON encoded strings.
+
+    For example:
+    ```ruby
+    redis.rpush("range", ['0','1','2','3'])  # used to cast to a JSON string: "[\"0\",\"1\",\"2\",\"3\"]"
+    redis.rpush("range", ['4','5','6','7'])  # used to cast to a JSON string: "[\"4\",\"5\",\"6\",\"7\"]"
+    # making the range have a length of 2 and contain 2 strings JSON encoded.
+    # now however, it ends up being:
+    # 0, 1, 2, 3, 4, 5, 6, 7
+    # and having a length of 8
+    # a simple work around is to call to_json on Array data before upgrading.
+    ```
+    
 
 * The client now raises custom exceptions where it makes sense.
 
